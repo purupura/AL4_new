@@ -27,6 +27,10 @@ public:
 	// 発射間隔
 	static const int kFireInterval = 60;
 
+	void OnCollision();
+
+	const std::list<EnemyBullet*>& GetBullet() const { return bullets_; }
+
 private:
 	KamataEngine::WorldTransform worldtransfrom_;
 	KamataEngine::Model* model_ = nullptr;

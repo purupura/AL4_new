@@ -1,8 +1,5 @@
 #include "Enemy.h"
 #include "Player.h"
-#include <cassert>
-#include <d3d12.h>
-#include "MathUtility.h"
 
 Enemy::~Enemy() {
 
@@ -33,13 +30,15 @@ KamataEngine::Vector3 Enemy::GetWorldPosition() {
 	return worldPos;
 }
 
+void Enemy::OnCollision() {}
+
 void Enemy::Fire() {
 
 	assert(player_);
 
 	spawnTimer--;
 
-	if (spawnTimer < 0.0f) {
+	if (spawnTimer < -0.0f) {
 
 		KamataEngine::Vector3 moveBullet = worldtransfrom_.translation_;
 
@@ -48,9 +47,9 @@ void Enemy::Fire() {
 
 		KamataEngine::Vector3 velocity(0, 0, 0);
 
-		KamataEngine::Vector3 playerWorldTransform = player_->GetWorldPosition();
-		KamataEngine::Vector3 enemyWorldTransform = GetWorldPosition();
-		KamataEngine::Vector3 homingBullet = enemyWorldTransform - playerWorldTransform;
+		KamataEngine::Vector3 playerWorldtransform = player_->GetWorldPosition();
+		KamataEngine::Vector3 enemyWorldtransform = GetWorldPosition();
+		KamataEngine::Vector3 homingBullet = enemyWorldtransform - playerWorldtransform;
 		homingBullet = Normalize(homingBullet);
 		velocity.x += kBulletSpeed * homingBullet.x;
 		velocity.y += kBulletSpeed * homingBullet.y;
@@ -69,35 +68,51 @@ void Enemy::Fire() {
 
 void Enemy::Update() {
 
-	// 弾更新
-	for (EnemyBullet* bullet : bullets_) {
-		bullet->Update();
-	}
 
-	// フェーズごとの動作
+
+	// デスフラグの立った弾を削除
+	bullets_.remove_if([](EnemyBullet* bullet) {
+		if (bullet->IsDead()) {
+			delete bullet;
+			return true;
+		}
+		return false;
+	});
+
+	// キャラクターの移動ベクトル
+	KamataEngine::Vector3 move = {0, 0, 0};
+	// 接近
+	KamataEngine::Vector3 accessSpeed = {0.1f, 0.1f, 0.1f};
+	// 離脱
+	KamataEngine::Vector3 eliminationSpeed = {0.3f, 0.3f, 0.3f};
+
+	
 	switch (phase_) {
 	case Phase::Approach:
-		// Z方向へ近づく
-		Fire();
-		worldtransfrom_.translation_.z -= 0.3f;
-
-		// Z位置が閾値に達したらフェーズをLeaveに変更
-
-		if (worldtransfrom_.translation_.z <= -2.0f) {
-			phase_ = Phase::Leave;
-		}
-		break;
-
-	case Phase::Leave:
-		// 離れる動作
-		worldtransfrom_.translation_.y += 1.0f;
-
-
-		break;
-
 	default:
-		break;
+	    // 移動(ベクトルを加算)
+	    worldtransfrom_.translation_.z -= accessSpeed.z;
+
+			Fire();
+
+		// 弾更新
+		for (EnemyBullet* bullet : bullets_) {
+			bullet->Update();
+		}
+	    // 規定の位置に到達したら離脱
+	    if (worldtransfrom_.translation_.z < 0.0f) {
+	        phase_ = Phase::Leave;
+	    }
+	    break;
+	case Phase::Leave:
+	    // 移動(ベクトルを加算)
+	    worldtransfrom_.translation_.y += eliminationSpeed.y;
+	    break;
+
 	}
+	
+
+	
 
 	worldtransfrom_.updateMatrix();
 }

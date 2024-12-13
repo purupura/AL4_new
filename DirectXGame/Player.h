@@ -1,4 +1,5 @@
 #pragma once
+#include "AABB.h"
 #include "PlayerBullet.h"
 #include <3d/Camera.h>
 #include <3d/Model.h>
@@ -21,7 +22,16 @@ public:
 
 	KamataEngine::Vector3 GetWorldPosition();
 
+	AABB GetAABB();
+
+	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
+
+	static inline const float kWidth = 1.0f;
+	static inline const float kHeight = 1.0f;
+
 private:
+	bool isDead_ = false;
+
 	KamataEngine::WorldTransform worldtransfrom_;
 
 	KamataEngine::Model* model_ = nullptr;

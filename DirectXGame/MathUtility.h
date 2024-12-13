@@ -5,34 +5,29 @@
 #include <stdio.h>
 using namespace KamataEngine;
 
-// 加算
-Vector3 Add(const Vector3& v1, const Vector3& v2);
+Matrix4x4 MatrixMultipry(const Matrix4x4& matrix1, const Matrix4x4& matrix2);
 
-Vector3 Add2(const Vector3 v1, const Vector3 v2);
-
-// 積
-Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2);
-
-// 1.X軸回転行列
-Matrix4x4 MakeRotateXMatrix(float radian);
-
-// 2.Y軸回転行列
-Matrix4x4 MakeRotateYMatrix(float radian);
-
-// 3.Z軸回転行列
-Matrix4x4 MakeRotateZMatrix(float radian);
-
-// 回転行列の合成
-Matrix4x4 RotateXYZMatrix(const Vector3& radian);
-
-// 3次元アフィン変換行列
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
 
-Vector3 Lerp(const Vector3& a, const Vector3& b, float t);
+Matrix4x4 MakeRotateZMatrix(float angle);
 
-Vector3 Multiply(float scalar, const Vector3& v);
+Vector3 Transform(const Vector3& vec, const Matrix4x4& mat);
+
+Vector3 Subtract(const Vector3& v1, const Vector3& v2);
 
 Vector3 Normalize(const Vector3& v);
+
+Matrix4x4 MakeScaleMatrix(const Vector3& scale);
+
+Matrix4x4 MakeTranslateMatrix(const Vector3& translate);
+
+// 正射影行列
+Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip);
+// viewport
+Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth);
+
+// 透視投影行列
+Matrix4x4 MakePerspectiveMatrix(float fovY, float aspectRatio, float nearClip, float farClip);
 
 // 代入演算子オーバーロード
 // Vector3の掛け算
@@ -53,11 +48,3 @@ const Vector3 operator+(Vector3& v1, Vector3& v2);
 Vector3& operator-=(Vector3& lhv, const Vector3& rhv);
 
 const Vector3 operator-(Vector3& v1, Vector3& v2);
-
-
-
-Matrix4x4 MakeRotateZMatrix(float thata);
-
-Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
-
-Vector3 TransformNormal(const Vector3& v, const Matrix4x4& matrix);

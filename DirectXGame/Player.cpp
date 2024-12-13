@@ -46,7 +46,7 @@ void Player::Attack() {
 	}
 }
 
-void Player::OnCollision() {}
+void Player::OnCollision() { isDead_ = true; }
 
 // ワールド座標を取得
 KamataEngine::Vector3 Player::GetWorldPosition() {
@@ -59,6 +59,17 @@ KamataEngine::Vector3 Player::GetWorldPosition() {
 	worldPos.z = worldtransfrom_.matWorld_.m[3][2];
 
 	return worldPos;
+}
+
+AABB Player::GetAABB() {
+	KamataEngine::Vector3 worldPos = GetWorldPosition();
+
+	AABB aabb;
+
+	aabb.min = {worldPos.x - kWidth / 2.0f, worldPos.y - kHeight / 2.0f, worldPos.z - kWidth / 2.0f};
+	aabb.max = {worldPos.x + kWidth / 2.0f, worldPos.y + kHeight / 2.0f, worldPos.z + kWidth / 2.0f};
+
+	return aabb;
 }
 
 void Player::Update() {
@@ -118,7 +129,10 @@ void Player::Update() {
 	worldtransfrom_.translation_.x = std::clamp(worldtransfrom_.translation_.x, -kMoveLimitX, kMoveLimitX);
 	worldtransfrom_.translation_.y = std::clamp(worldtransfrom_.translation_.y, -kMoveLimitY, kMoveLimitY);
 
-
+	//ImGui::Begin("Setmove");
+	//ImGui::SliderFloat("Move X", &worldtransfrom_.translation_.x, -1.0f, 1.0f);
+	//ImGui::SliderFloat("Move Y", &worldtransfrom_.translation_.y, -1.0f, 1.0f);
+	//ImGui::End();
 
 	worldtransfrom_.updateMatrix();
 }

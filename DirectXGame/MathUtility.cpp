@@ -1,163 +1,84 @@
-#include "MathUtility.h"
+#include "mathUtility.h"
 
-// 加算
-Vector3 Add(const Vector3& v1, const Vector3& v2) {
-	Vector3 result;
-
-	result.x = v1.x + v2.x;
-	result.y = v1.y + v2.y;
-	result.z = v1.z + v2.z;
-
-	return result;
-}
-
-Vector3 Add2(const Vector3 v1, const Vector3 v2) {
-	Vector3 result;
-
-	result.x = v1.x + v2.x;
-	result.y = v1.y + v2.y;
-	result.z = v1.z + v2.z;
-
-	return result;
-}
-
-// 積
-Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
+Matrix4x4 MatrixMultipry(const Matrix4x4& matrix1, const Matrix4x4& matrix2) {
 	Matrix4x4 result;
 
 	for (int i = 0; i < 4; ++i) {
+
 		for (int j = 0; j < 4; ++j) {
-			result.m[i][j] = 0;
-			for (int k = 0; k < 4; ++k) {
-				result.m[i][j] += m1.m[i][k] * m2.m[k][j];
-			}
+			result.m[i][j] = matrix1.m[i][0] * matrix2.m[0][j] + matrix1.m[i][1] * matrix2.m[1][j] + matrix1.m[i][2] * matrix2.m[2][j] + matrix1.m[i][3] * matrix2.m[3][j];
 		}
 	}
 
 	return result;
 }
 
-// 1.X軸回転行列
-Matrix4x4 MakeRotateXMatrix(float radian) {
-	Matrix4x4 result;
-	float cos = cosf(radian);
-	float sin = sinf(radian);
+Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rot, const Vector3& translate) {
 
-	result.m[0][0] = 1.0f;
-	result.m[0][1] = 0.0f;
-	result.m[0][2] = 0.0f;
-	result.m[0][3] = 0.0f;
-	result.m[1][0] = 0.0f;
-	result.m[1][1] = cos;
-	result.m[1][2] = sin;
-	result.m[1][3] = 0.0f;
-	result.m[2][0] = 0.0f;
-	result.m[2][1] = -sin;
-	result.m[2][2] = cos;
-	result.m[2][3] = 0.0f;
-	result.m[3][0] = 0.0f;
-	result.m[3][1] = 0.0f;
-	result.m[3][2] = 0.0f;
-	result.m[3][3] = 1.0f;
-	return result;
+	// エラー対策(使用しない)
+	Vector3 dm = scale;
+
+	// 回転
+	Matrix4x4 RotateMatY = {cosf(rot.y), 0, -sinf(rot.y), 0, 0, 1, 0, 0, sinf(rot.y), 0, cosf(rot.y), 0, 0, 0, 0, 1};
+
+	// 平行移動行列の作成
+	Matrix4x4 TranslateMat = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, translate.x, translate.y, translate.z, 1};
+
+	// 回転*平行移動だけをワールド変換行列に
+	Matrix4x4 ansMat = MatrixMultipry(RotateMatY, TranslateMat);
+
+	return ansMat;
 }
 
-// 2.Y軸回転行列
-Matrix4x4 MakeRotateYMatrix(float radian) {
-	Matrix4x4 result;
-	float cos = cosf(radian);
-	float sin = sinf(radian);
+Matrix4x4 MakeRotateZMatrix(float angle) {
+	Matrix4x4 matrix;
 
-	result.m[0][0] = cos;
-	result.m[0][1] = 0.0f;
-	result.m[0][2] = -sin;
-	result.m[0][3] = 0.0f;
-	result.m[1][0] = 0.0f;
-	result.m[1][1] = 1.0f;
-	result.m[1][2] = 0.0f;
-	result.m[1][3] = 0.0f;
-	result.m[2][0] = sin;
-	result.m[2][1] = 0.0f;
-	result.m[2][2] = cos;
-	result.m[2][3] = 0.0f;
-	result.m[3][0] = 0.0f;
-	result.m[3][1] = 0.0f;
-	result.m[3][2] = 0.0f;
-	result.m[3][3] = 1.0f;
-	return result;
+	float cosAngle = std::cos(angle);
+	float sinAngle = std::sin(angle);
+
+	matrix.m[0][0] = cosAngle;
+	matrix.m[0][1] = -sinAngle;
+	matrix.m[0][2] = 0.0f;
+	matrix.m[0][3] = 0.0f;
+
+	matrix.m[1][0] = sinAngle;
+	matrix.m[1][1] = cosAngle;
+	matrix.m[1][2] = 0.0f;
+	matrix.m[1][3] = 0.0f;
+
+	matrix.m[2][0] = 0.0f;
+	matrix.m[2][1] = 0.0f;
+	matrix.m[2][2] = 1.0f;
+	matrix.m[2][3] = 0.0f;
+
+	matrix.m[3][0] = 0.0f;
+	matrix.m[3][1] = 0.0f;
+	matrix.m[3][2] = 0.0f;
+	matrix.m[3][3] = 1.0f;
+
+	return matrix;
 }
 
-// 3.Z軸回転行列
-Matrix4x4 MakeRotateZMatrix(float radian) {
-	Matrix4x4 result;
-	float cos = cosf(radian);
-	float sin = sinf(radian);
-
-	result.m[0][0] = cos;
-	result.m[0][1] = sin;
-	result.m[0][2] = 0.0f;
-	result.m[0][3] = 0.0f;
-	result.m[1][0] = -sin;
-	result.m[1][1] = cos;
-	result.m[1][2] = 0.0f;
-	result.m[1][3] = 0.0f;
-	result.m[2][0] = 0.0f;
-	result.m[2][1] = 0.0f;
-	result.m[2][2] = 1.0f;
-	result.m[2][3] = 0.0f;
-	result.m[3][0] = 0.0f;
-	result.m[3][1] = 0.0f;
-	result.m[3][2] = 0.0f;
-	result.m[3][3] = 1.0f;
-	return result;
-}
-
-// 回転行列の合成
-Matrix4x4 RotateXYZMatrix(const Vector3& radian) {
-	Matrix4x4 result = Multiply(MakeRotateXMatrix(radian.x), Multiply(MakeRotateYMatrix(radian.y), MakeRotateZMatrix(radian.z)));
-
-	return result;
-}
-
-// 3次元アフィン変換行列
-Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
-	Matrix4x4 result;
-	result.m[0][3] = 0.0f;
-	result.m[1][3] = 0.0f;
-	result.m[2][3] = 0.0f;
-	result.m[3][3] = 1.0f;
-
-	Matrix4x4 rotateM = RotateXYZMatrix(rotate);
-
-	result.m[0][0] = scale.x * rotateM.m[0][0];
-	result.m[0][1] = scale.x * rotateM.m[0][1];
-	result.m[0][2] = scale.x * rotateM.m[0][2];
-
-	result.m[1][0] = scale.y * rotateM.m[1][0];
-	result.m[1][1] = scale.y * rotateM.m[1][1];
-	result.m[1][2] = scale.y * rotateM.m[1][2];
-
-	result.m[2][0] = scale.z * rotateM.m[2][0];
-	result.m[2][1] = scale.z * rotateM.m[2][1];
-	result.m[2][2] = scale.z * rotateM.m[2][2];
-
-	result.m[3][0] = translate.x;
-	result.m[3][1] = translate.y;
-	result.m[3][2] = translate.z;
-
-	return result;
-}
-
-Vector3 Lerp(const Vector3& a, const Vector3& b, float t) {
+Vector3 Transform(const Vector3& vec, const Matrix4x4& mat) {
 	Vector3 result;
-	result.x = a.x + (b.x - a.x) * t;
-	result.y = a.y + (b.y - a.y) * t;
-	result.z = a.z + (b.z - a.z) * t;
+
+	result.x = vec.x * mat.m[0][0] + vec.y * mat.m[1][0] + vec.z * mat.m[2][0] + mat.m[3][0];
+	result.y = vec.x * mat.m[0][1] + vec.y * mat.m[1][1] + vec.z * mat.m[2][1] + mat.m[3][1];
+	result.z = vec.x * mat.m[0][2] + vec.y * mat.m[1][2] + vec.z * mat.m[2][2] + mat.m[3][2];
+
 	return result;
+}
+
+Vector3 Subtract(const Vector3& v1, const Vector3& v2) {
+	Vector3 subtract;
+	subtract.x = (v1.x - v2.x);
+	subtract.y = (v1.y - v2.y);
+	subtract.z = (v1.z - v2.z);
+	return subtract;
 }
 
 Vector3 Normalize(const Vector3& v) {
-	
+
 	float len = KamataEngine::MathUtility::Length(v);
 	Vector3 v2 = {};
 	v2.x = v.x / len;
@@ -167,15 +88,62 @@ Vector3 Normalize(const Vector3& v) {
 	return v2;
 }
 
-// スカラー倍
-Vector3 Multiply(const Vector3& v) {
-	Vector3 result;
+Matrix4x4 MakeScaleMatrix(const Vector3& scale) {
+	Matrix4x4 m = {};
+	m.m[0][0] = scale.x;
+	m.m[1][1] = scale.y;
+	m.m[2][2] = scale.z;
+	m.m[3][3] = 1;
+	return m;
+}
 
-	result.x = v.x / (float)sqrt((v.x * v.x) + (v.y * v.y) + (v.z * v.z));
-	result.y = v.y / (float)sqrt((v.x * v.x) + (v.y * v.y) + (v.z * v.z));
-	result.z = v.z / (float)sqrt((v.x * v.x) + (v.y * v.y) + (v.z * v.z));
+Matrix4x4 MakeTranslateMatrix(const Vector3& translate) {
+	Matrix4x4 m = {};
+	m.m[0][0] = 1;
+	m.m[1][1] = 1;
+	m.m[2][2] = 1;
+	m.m[3][3] = 1;
+	m.m[3][0] = translate.x;
+	m.m[3][1] = translate.y;
+	m.m[3][2] = translate.z;
+	return m;
+}
 
-	return result;
+Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip) {
+	Matrix4x4 m = {};
+	m.m[0][0] = 2 / (right - left);
+	m.m[1][1] = 2 / (top - bottom);
+	m.m[2][2] = 1 / (farClip - nearClip);
+	m.m[3][0] = -(right + left) / (right - left);
+	m.m[3][1] = -(top + bottom) / (top - bottom);
+	m.m[3][2] = -nearClip / (farClip - nearClip);
+	m.m[3][3] = 1;
+	return m;
+}
+
+Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth) {
+	Matrix4x4 m = {};
+	m.m[0][0] = width / 2;
+	m.m[1][1] = -height / 2;
+	m.m[2][2] = maxDepth - minDepth;
+	m.m[3][0] = left + width / 2;
+	m.m[3][1] = top + height / 2;
+	m.m[3][2] = minDepth;
+	m.m[3][3] = 1;
+	return m;
+}
+
+Matrix4x4 MakePerspectiveMatrix(float fovY, float aspectRatio, float nearClip, float farClip) {
+	Matrix4x4 m = {};
+	float yScale = 1 / std::tan(fovY / 2);
+	float xScale = yScale / aspectRatio;
+	m.m[0][0] = xScale;
+	m.m[1][1] = yScale;
+	m.m[2][2] = farClip / (farClip - nearClip);
+	m.m[2][3] = 1;
+	m.m[3][2] = -nearClip * farClip / (farClip - nearClip);
+	m.m[3][3] = 0;
+	return m;
 }
 
 Vector3& operator*=(Vector3& v, float s) {
@@ -208,26 +176,3 @@ Vector3& operator-=(Vector3& lhv, const Vector3& rhv) {
 }
 
 const Vector3 operator-(Vector3& v1, Vector3& v2) { return {v1.x - v2.x, v1.y - v2.y, v1.z - v2.z}; }
-
-const Vector3 operator+(Vector3& v1, Vector3& v2) { return {v1.x + v2.x, v1.y + v2.y, v1.z + v2.z}; }
-
-Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
-	Vector3 result;
-	result.x = vector.x * matrix.m[0][0] + vector.y * matrix.m[1][0] + vector.z * matrix.m[2][0] + 1.0f * matrix.m[3][0];
-	result.y = vector.x * matrix.m[0][1] + vector.y * matrix.m[1][1] + vector.z * matrix.m[2][1] + 1.0f * matrix.m[3][1];
-	result.z = vector.x * matrix.m[0][2] + vector.y * matrix.m[1][2] + vector.z * matrix.m[2][2] + 1.0f * matrix.m[3][2];
-	float w = vector.x * matrix.m[0][3] + vector.y * matrix.m[1][3] + vector.z * matrix.m[2][3] + 1.0f * matrix.m[3][3];
-	assert(w != 0.0f);
-
-	result.x /= w;
-	result.y /= w;
-	result.z /= w;
-
-	return result;
-}
-
-Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m) {
-	Vector3 result{v.x * m.m[0][0] + v.y * m.m[1][0] + v.z * m.m[2][0], v.x * m.m[0][1] + v.y * m.m[1][1] + v.z * m.m[2][1], v.x * m.m[0][2] + v.y * m.m[1][2] + v.z * m.m[2][2]};
-
-	return result;
-}

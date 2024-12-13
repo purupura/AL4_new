@@ -14,6 +14,10 @@ public:
 
 	bool IsDead() const { return isDead_; }
 
+	void OnCollision();
+
+	KamataEngine::Vector3 GetWorldPosition();
+
 private:
 	KamataEngine::WorldTransform worldtransfrom_;
 
