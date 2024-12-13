@@ -126,6 +126,7 @@ void Player::Update() {
 	const float kMoveLimitX = 30;
 	const float kMoveLimitY = 15;
 
+
 	worldtransfrom_.translation_.x = std::clamp(worldtransfrom_.translation_.x, -kMoveLimitX, kMoveLimitX);
 	worldtransfrom_.translation_.y = std::clamp(worldtransfrom_.translation_.y, -kMoveLimitY, kMoveLimitY);
 
