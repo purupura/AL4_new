@@ -1,5 +1,5 @@
-#include "3d/AxisIndicator.h"
 #include "GameScene.h"
+#include "3d/AxisIndicator.h"
 #include <cassert>
 
 GameScene::GameScene() {}
@@ -44,8 +44,6 @@ void GameScene::Initialize() {
 
 	// 敵キャラに自キャラのアドレスを渡す
 	enemy_->SetPlayer(player_);
-
-
 }
 
 void GameScene::Update() {
